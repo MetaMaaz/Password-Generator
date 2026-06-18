@@ -1,4 +1,7 @@
 python-dotenv>=1.0.0
 
+# Live demo (Streamlit Community Cloud)
+streamlit>=1.32.0
+
 # Dev dependencies
 pytest>=7.0.0

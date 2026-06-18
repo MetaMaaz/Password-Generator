@@ -2,6 +2,21 @@
 
 A secure CLI password generator with HaveIBeenPwned breach checking, k-anonymity privacy preservation, and auto-clearing clipboard support.
 
+## 🔗 Live demo
+
+**Try it in your browser:** https://YOUR-APP-SLUG.streamlit.app
+
+A read-only [Streamlit](https://streamlit.io) UI over the same code in this repo — generate a
+password, see its strength, entropy, and estimated crack time, and optionally run the
+privacy-preserving HaveIBeenPwned breach check. The public demo is rate-limited, takes no
+file uploads, and stores nothing. See [DEPLOY.md](DEPLOY.md) for how it's hosted and hardened.
+
+<!-- After recording the screen capture, drop the assets in docs/ and uncomment:
+![Password Generator demo](docs/demo.gif)
+
+![Generated password with strength and entropy](docs/result.png)
+-->
+
 ## Features
 
 - **Cryptographically secure generation** — uses Python's `secrets` module (CSPRNG), not `random`
