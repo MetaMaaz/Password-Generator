@@ -4,7 +4,7 @@ A secure CLI password generator with HaveIBeenPwned breach checking, k-anonymity
 
 ## 🔗 Live demo
 
-**Try it in your browser:** https://YOUR-APP-SLUG.streamlit.app
+**Try it in your browser:** https://securepassword-generator.streamlit.app
 
 A read-only [Streamlit](https://streamlit.io) UI over the same code in this repo — generate a
 password, see its strength, entropy, and estimated crack time, and optionally run the
