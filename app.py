@@ -15,6 +15,7 @@ Public-demo hardening lives in this file only:
 """
 
 import os
+import json
 import time
 from html import escape
 
@@ -38,6 +39,7 @@ for _k, _v in _ENV_DEFAULTS.items():
     os.environ.setdefault(_k, _v)
 
 import streamlit as st
+import streamlit.components.v1 as components
 
 # Import the REAL logic. Nothing below reimplements it.
 from PasswordGenerator import (
@@ -65,7 +67,7 @@ st.markdown(
     """
     <style>
       .stApp { background: #0d1117; }
-      .block-container { max-width: 760px; padding-top: 2.2rem; }
+      .block-container { max-width: 760px; padding-top: 3.5rem; }
       h1, h2, h3 { color: #e6edf3; letter-spacing: -0.01em; }
       p, label, .stMarkdown { color: #adbac7; }
       .tl-tag {
@@ -172,12 +174,46 @@ if generate:
 res = st.session_state.last_pw
 if res:
     st.markdown("### Result")
-    display = res["password"] if show_pw else "•" * len(res["password"])
-    # Escape before injecting: generated passwords contain HTML-special chars
-    # like < > & " which would otherwise break the markup (InvalidCharacterError).
-    st.markdown(f'<div class="tl-pw">{escape(display)}</div>', unsafe_allow_html=True)
-    st.markdown('<div class="tl-note">Triple-click to select · nothing is stored server-side</div>',
-                unsafe_allow_html=True)
+    # Shown value is masked when "Show password" is off, but the Copy button
+    # always copies the real password. Escape the shown text (passwords contain
+    # < > & ") and pass the real value to JS safely via json.dumps.
+    shown = escape(res["password"]) if show_pw else "•" * len(res["password"])
+    pw_js = json.dumps(res["password"])
+    # Two lines max for a 64-char password at this font size.
+    box_height = 150 if len(res["password"]) > 40 else 120
+    components.html(
+        f"""
+        <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;">
+          <div style="display:flex; gap:10px; align-items:stretch;">
+            <div style="flex:1; color:#e6edf3; background:#161b22; border:1px solid #30363d;
+                        border-radius:10px; padding:16px 18px; font-size:22px; line-height:1.5;
+                        word-break:break-all; user-select:all;">{shown}</div>
+            <button id="cp" style="flex:0 0 auto; cursor:pointer; color:#fff; background:#238636;
+                        border:0; border-radius:10px; padding:0 18px; font:600 14px ui-monospace,monospace;">
+              Copy
+            </button>
+          </div>
+          <div style="font:12px ui-monospace,monospace; color:#768390; margin-top:8px;">
+            Copy button works whether or not the password is shown · nothing is stored server-side
+          </div>
+        </div>
+        <script>
+          const pw = {pw_js};
+          const btn = document.getElementById('cp');
+          btn.addEventListener('click', async () => {{
+            try {{ await navigator.clipboard.writeText(pw); }}
+            catch (e) {{
+              const ta = document.createElement('textarea');
+              ta.value = pw; document.body.appendChild(ta); ta.select();
+              document.execCommand('copy'); ta.remove();
+            }}
+            btn.textContent = 'Copied ✓'; btn.style.background = '#2ea043';
+            setTimeout(() => {{ btn.textContent = 'Copy'; btn.style.background = '#238636'; }}, 1500);
+          }});
+        </script>
+        """,
+        height=box_height,
+    )
 
     m1, m2, m3 = st.columns(3)
     m1.markdown(
