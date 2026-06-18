@@ -16,6 +16,7 @@ Public-demo hardening lives in this file only:
 
 import os
 import time
+from html import escape
 
 # --- Provide safe defaults BEFORE importing the core module ----------------
 # The core module reads these via os.getenv() at call time. Setting them here
@@ -172,7 +173,9 @@ res = st.session_state.last_pw
 if res:
     st.markdown("### Result")
     display = res["password"] if show_pw else "•" * len(res["password"])
-    st.markdown(f'<div class="tl-pw">{display}</div>', unsafe_allow_html=True)
+    # Escape before injecting: generated passwords contain HTML-special chars
+    # like < > & " which would otherwise break the markup (InvalidCharacterError).
+    st.markdown(f'<div class="tl-pw">{escape(display)}</div>', unsafe_allow_html=True)
     st.markdown('<div class="tl-note">Triple-click to select · nothing is stored server-side</div>',
                 unsafe_allow_html=True)
 
